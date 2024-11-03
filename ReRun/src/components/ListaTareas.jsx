@@ -18,7 +18,8 @@ const {contextoTema} = useContext(TemaContext);
   // function pa crear novas tareas
 
   const agregarTarea = (titulo) => {  
-    setTareas([...tareas, {id: nanoid(), titulo, completada: false}]);
+    titulo.length > 0 &&  
+    setTareas([...tareas, {id: nanoid(), titulo, completada: false}]),null;
   }
 
   /*  filter para crear nova lista de tareas quitando aque queremos eliminar*/
