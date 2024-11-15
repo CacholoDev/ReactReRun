@@ -1,29 +1,28 @@
 import { useState } from "react";
-import PropTypes from 'prop-types';
+import { useDispatch } from "react-redux";
+import { creada } from "../redux/TareaSlice";
 
-const FormularioNueva = ({agregarTarea}) => {
-    const [titulo,setTitulo] = useState("");
-
-    const agregar = (e) => {
-        e.preventDefault();
-        agregarTarea(titulo);
-        setTitulo("");
+// eslint-disable-next-line react/prop-types
+const FormularioNueva = ({ listaId }) => {
+    const [nuevaTitulo, setNuevaTitulo] = useState("")
+    const dispatch = useDispatch()
+  
+    const manejarSubmit = (event) => {
+      event.preventDefault()
+      dispatch(creada(nuevaTitulo, listaId))
+      setNuevaTitulo("")
     }
-
+  
     return (
-        <div>
-            <h2>añadir nueva tarea</h2>
-            <form onSubmit={agregar}>
-                <input type="text" name="titulo" placeholder="añade titulo"  onChange={e => setTitulo(e.target.value)} value={titulo}/>
-                <button type="submit">Añadir</button>
-            </form>
-        </div>
+      <form onSubmit={manejarSubmit}>
+        <input type="text" name="titulo" placeholder="Nueva tarea"
+          onChange={event => setNuevaTitulo(event.target.value)}
+          value={nuevaTitulo} />
+      </form>
     )
+  }
+  
 
-}
 
-FormularioNueva.propTypes = {
-    agregarTarea: PropTypes.func.isRequired,
-};
 
 export { FormularioNueva };

@@ -15,9 +15,7 @@
   -webkit-text-size-adjust: 100%;
 }
 
-body { 
-   background-color: #1E1E2E;
-}
+
 
 .dark{
   background-color: #1E1E2E;
@@ -28,3 +26,4 @@ body {
   background-color: white;
   color: black;
 }
+

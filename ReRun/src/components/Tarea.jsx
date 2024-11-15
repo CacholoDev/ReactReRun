@@ -1,33 +1,47 @@
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
+import { eliminada, modificada } from '../redux/TareaSlice';
+import { tareaMovidaDerecha, tareaMovidaIzquierda } from '../redux/TableroSlice';
 
-const Tarea = ({id,titulo,completada,eliminarTarea}) => {
+// eslint-disable-next-line react/prop-types
+const Tarea = ({id}) => {
+  const dispatch = useDispatch()
+  const { titulo: initialTitulo } = useSelector(state => state.tareas.lista[id])
+  const [titulo, setTitulo] = useState(initialTitulo)
+  const eliminarTarea = () => dispatch(eliminada(id))
+  const editarTarea = (event) => {
+    setTitulo(event.target.value)
+    dispatch(modificada({ id, titulo }))
+  }
+  const moverDerecha = () => {
+    dispatch(tareaMovidaDerecha(id))
+  }
+  const moverIzquierda = () => {
+    dispatch(tareaMovidaIzquierda(id))
+  }
 
-  const handleButtonEliminar = () => {
-    eliminarTarea(id);
-  } 
+  return (
+    
+    <li>   
+      <input type="text" value={titulo} onChange={editarTarea} />
+      <button onClick={eliminarTarea}>x</button>
+      <button onClick={moverIzquierda}>&lt;</button>
+      <button onClick={moverDerecha}>&gt;</button>
+    </li>
+    
+   )
+}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
-return (
-  <li className={completada ? "done" : "todo"}>
-    <label>
-    <input type="checkbox" defaultChecked={completada} />
-    {completada ? 'DONE' : 'TODO'} 
-    </label>
-    {titulo}
 
-{/* boton de eliminar si completada e true e de editar si e false */}
-    { completada && <button onClick={handleButtonEliminar}>Eliminar</button> }
-    { completada || <button>Editar</button> }
-  </li>
-)
 
-};
-
-Tarea.propTypes = {
-  id: PropTypes.string.isRequired,
-  titulo: PropTypes.string.isRequired,
-  completada: PropTypes.bool.isRequired,
-  eliminarTarea: PropTypes.func.isRequired,
-};
 
 
 export { Tarea };
