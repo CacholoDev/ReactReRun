@@ -1,33 +1,29 @@
 import { useDispatch, useSelector } from "react-redux";
-import { listaCreada } from "../redux/TableroSlice";
-import { useMemo, useState } from "react";
+import { cargarTablero, listaCreada } from "../redux/TableroSlice";
+import { useEffect, useState } from "react";
 import { ListaTareas } from "./ListaTareas";
+import { tareasCargadas } from "../redux/TareaSlice";
 
 const Tablero = () => {
-         // 1.Recupera las listas (claves) desde Redux
-// Usa useSelector directamente en el cuerpo del componente
-const tablero = useSelector((state) => state.tablero);        
-const listas = useMemo(() => Object.keys(tablero), [tablero]);
-console.log(listas); // Para verificar las claves obtenidas
+  const dispatch = useDispatch()
+  useEffect(() => { dispatch(cargarTablero()).then(() => dispatch(tareasCargadas())) }, [])
+  const { status, listas } = useSelector(
+    state => state.tablero
+  )
 
-         // 2.Estado local para almacenar el valor temporal de una nueva lista
-       const [nuevaLista, setNuevaLista] = useState("");
+  const [nuevaLista, setNuevaLista] = useState("")
+  const crearLista = (event) => {
+    event.preventDefault()
+    dispatch(listaCreada(nuevaLista))
+    setNuevaLista("")
+  }
+  
+  if (status == "LOADING") return <p>Cargando tablero...</p>
+  if (status == "FAILED") return <p>Error al cargar el tablero.</p>
 
-         // 3.Hook de dispatch para enviar acciones al store
-         const dispatch = useDispatch();
-
-         // 4.Función para manejar el envío del formulario
-         const crearLista = (e) => {
-           e.preventDefault();
-    // Despacha la acción `listaCreada` con el valor de `nuevaLista`
-           dispatch(listaCreada(nuevaLista));
-          // Reinicia el valor de `nuevaLista` después de agregar la lista     
-           setNuevaLista("");
-         };
-
-          return (
+  return (
     <div className="tablero">
-      {listas.map(id => <ListaTareas key={id} id={id} />)}
+      {Object.keys(listas).map(id => <ListaTareas key={id} id={id} />)}
       <div className="lista">
         <form onSubmit={crearLista}>
           <input type="text" placeholder="Nueva lista" value={nuevaLista} onChange={e => setNuevaLista(e.target.value)} />
@@ -35,8 +31,8 @@ console.log(listas); // Para verificar las claves obtenidas
         </form>
       </div>
     </div>
-  );
-    
+  )
 }
+
 
 export { Tablero };

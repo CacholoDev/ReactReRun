@@ -1,4 +1,5 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, nanoid } from "@reduxjs/toolkit";
+import { cliente } from "../api";
 
 // Estado inicial separado, permite que el estado inicial esté claro y organizado
 const initialState = {
@@ -42,6 +43,31 @@ const TareaSlice = createSlice({
         }
     }
 });
+
+
+//THUNKS api
+// tareasSlice.js
+export const tareasCargadas = createAsyncThunk(
+    'tareas/tareasCargadas',
+    async () => await cliente.tareas.get()
+  )
+  export const tareaCreada = createAsyncThunk(
+    'tareas/creada',
+    async ({titulo, lista}) => await cliente.tareas.post({ titulo, lista })
+  )
+  export const tareaEliminada = createAsyncThunk(
+    'tareas/eliminada',
+    async id => await cliente.tareas.delete(id)
+  )
+  export const tareaMovida = createAsyncThunk(
+    'tareas/movida',
+    async ({ id, lista }) => await cliente.tareas.patch(id, { lista })
+  )
+  export const tareaRenombrada = createAsyncThunk(
+    'tareas/renombrada',
+    async ({ id, titulo }) => await cliente.tareas.patch(id, { titulo })
+  )
+  
 
 export default TareaSlice.reducer;
 export const { eliminada, modificada, creada } = TareaSlice.actions;

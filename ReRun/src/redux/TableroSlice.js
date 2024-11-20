@@ -1,74 +1,28 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit";
-import { creada, eliminada } from "./TareaSlice";
-
-const initialState = {
-  todo: {
-    nombre: "Pendiente",
-    lista: [2, 3],
-  },
-  doing: {
-    nombre: "En Proceso",
-    lista: [1],
-  },
-  done: {
-    nombre: "Completado",
-    lista: [],
-  },
-};
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { cliente } from "../api";
 
 const tableroSlice = createSlice({
   name: "tablero",
-  initialState,
-  reducers: {
-    listaCreada: {
-      prepare(nombre) {
-        return { payload: { id: nanoid(), nombre } };
-      },
-      reducer(state, action) {
-        state[action.payload.id] = {
-          nombre: action.payload.nombre,
-          lista: [],
-        };
-      },
-    },
-    tareaQuitada(state, action) {
-      state[action.payload.from_id].lista.splice(
-        state[action.payload.from_id].lista.indexOf(action.payload.tarea_id),
-        1
-      );
-    },
-    tareaAgregada(state, action) {
-      const orden = action.payload.orden ?? state[action.payload.to_id].lista.length
-      state[action.payload.to_id].lista.splice( orden,0,action.payload.tarea_id);
-    },
-  },
-
-  extraReducers: (builder) => {
-    builder.addCase(creada, (state, action) => {
-      console.log("Action payload en creada:", action.payload);
-      const { listaId, id } = action.payload;
-  
-      if (state[listaId]) {
-          state[listaId].lista.push(id);
-      } else {
-          console.error(`Error: listaId '${listaId}' no encontrado en el estado del tablero.`);
-          console.log("Estado actual:", state);
-      }
-
-    });
-
-    builder.addCase(eliminada, (state, action) => {
-      for (let t in state) {
-        const index = state[t].lista.indexOf(action.payload);
-        if (index > -1) {
-          state[t].lista.splice(index, 1);
+  initialState: { status: 'LOADING', listas: {} },
+  extraReducers: builder => {
+    builder
+      .addCase(cargarTablero.pending, state => {
+        state.status = "LOADING"
+      })
+      .addCase(cargarTablero.fulfilled, (state, action) => {
+        for (let lista of action.payload) {
+          state.listas[lista.id] = lista
         }
-      }
-    });
-  },
-});
+        state.status = "SUCCESS"
+      })
+      .addCase(cargarTablero.rejected, state => {
+        state.status = "FAILED"
+      })
+  }
+})
 
-export const { listaCreada, tareaQuitada, tareaAgregada } =
+
+export const { tareaQuitada, tareaAgregada } =
   tableroSlice.actions;
 
   // THUNKS 
@@ -107,6 +61,19 @@ export const tareaMovidaIzquierda = tarea_id => (dispatch, getState) => {
     dispatch(tareaAgregada({ tarea_id, to_id }))
   }
 }
+
+
+//TUNKS API
+
+// tableroSlice.js
+export const cargarTablero = createAsyncThunk(
+  'tablero/cargarTablero',
+  async () => await cliente.tablero.get()
+)
+export const listaCreada = createAsyncThunk(
+  'tablero/listaCreada',
+  async nombre => await cliente.tablero.post({ nombre })
+)
 
 
 export default tableroSlice.reducer;

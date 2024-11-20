@@ -7,6 +7,10 @@ import { tareaMovidaDerecha, tareaMovidaIzquierda } from '../redux/TableroSlice'
 const Tarea = ({id}) => {
   const dispatch = useDispatch()
   const { titulo: initialTitulo } = useSelector(state => state.tareas.lista[id])
+    // ATENCIÓN: al establecer el título con useState, este hook pasa a controlar su
+  // estado y por tanto no se actualiza cuando se carguen tareas del servidor.
+  // Lo ideal sería permitir la edición (y por tanto usar useState) únicamente
+  // cuando el usuario decida editar el título
   const [titulo, setTitulo] = useState(initialTitulo)
   const eliminarTarea = () => dispatch(eliminada(id))
   const editarTarea = (event) => {
